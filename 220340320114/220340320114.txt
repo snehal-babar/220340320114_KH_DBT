@@ -1,0 +1,185 @@
+1. mysql> create table DEPT(
+    -> DEPTNO int(2),
+    -> DNAME varchar(15),
+    -> LOC varchar(10));
+
+mysql> insert into DEPT values
+    -> (10,'ACCOUNTING','NEW YORK'),
+    -> (20,'RESEARCH','DALLAS'),
+    -> (30,'SALES','CHICAGO'),
+    -> (40,'OPERATIONS','BOSTON');
+mysql> select * from DEPT;
++--------+------------+----------+
+| DEPTNO | DNAME      | LOC      |
++--------+------------+----------+
+|     10 | ACCOUNTING | NEW YORK |
+|     20 | RESEARCH   | DALLAS   |
+|     30 | SALES      | CHICAGO  |
+|     40 | OPERATIONS | BOSTON   |
++--------+------------+----------+
+2.  create table EMP(
+     EMPNO int(4),
+     ENAME varchar(10),
+     JOB varchar(9),
+     HIREDATE date,
+     SAL float(7,2),
+	COMM float(7,2),
+	DEPTNO int(2));
+    
+insert into EMP values
+(7839,'KING','MANAGER','1991-11-17',5000,NULL,10),
+(7698,'BLAKE','CLERK','1981-05-01',2850,NULL,30),
+(7782,'CLARK','MANAGER','1981-06-09',2450,NULL,10),
+(7566,'JONES','CLERK','1981-04-02',2975,NULL,20),
+(7654,'MARTIN','SALESMAN','1981-09-28',1250,1400,30),
+(7499,'ALLEN','SALESMAN','1981-02-20',1600,300,30);
+mysql> select * from EMP;
++-------+--------+----------+------------+---------+---------+--------+
+| EMPNO | ENAME  | JOB      | HIREDATE   | SAL     | COMM    | DEPTNO |
++-------+--------+----------+------------+---------+---------+--------+
+|  7839 | KING   | MANAGER  | 1991-11-17 | 5000.00 |    NULL |     10 |
+|  7698 | BLAKE  | CLERK    | 1981-05-01 | 2850.00 |    NULL |     30 |
+|  7782 | CLARK  | MANAGER  | 1981-06-09 | 2450.00 |    NULL |     10 |
+|  7566 | JONES  | CLERK    | 1981-04-02 | 2975.00 |    NULL |     20 |
+|  7654 | MARTIN | SALESMAN | 1981-09-28 | 1250.00 | 1400.00 |     30 |
+|  7499 | ALLEN  | SALESMAN | 1981-02-20 | 1600.00 |  300.00 |     30 |
++-------+--------+----------+------------+---------+---------+--------+
+
+3.mysql> select * from EMP
+    -> where SAL between 2500 and 5000;
++-------+-------+---------+------------+---------+------+--------+
+| EMPNO | ENAME | JOB     | HIREDATE   | SAL     | COMM | DEPTNO |
++-------+-------+---------+------------+---------+------+--------+
+|  7839 | KING  | MANAGER | 1991-11-17 | 5000.00 | NULL |     10 |
+|  7698 | BLAKE | CLERK   | 1981-05-01 | 2850.00 | NULL |     30 |
+|  7566 | JONES | CLERK   | 1981-04-02 | 2975.00 | NULL |     20 |
++-------+-------+---------+------------+---------+------+--------+
+4.mysql> select ENAME from EMP
+    -> order by ENAME desc;
++--------+
+| ENAME  |
++--------+
+| MARTIN |
+| KING   |
+| JONES  |
+| CLARK  |
+| BLAKE  |
+| ALLEN  |
++--------+
+5.mysql> select lower(JOB) from EMP;
++------------+
+| lower(JOB) |
++------------+
+| manager    |
+| clerk      |
+| manager    |
+| clerk      |
+| salesman   |
+| salesman   |
++------------+
+6.mysql> select ENAME,length(ENAME) from EMP;
++--------+---------------+
+| ENAME  | length(ENAME) |
++--------+---------------+
+| KING   |             4 |
+| BLAKE  |             5 |
+| CLARK  |             5 |
+| JONES  |             5 |
+| MARTIN |             6 |
+| ALLEN  |             5 |
++--------+---------------+
+7.mysql> select DEPTNO,count(*) as "No of Employees" from EMP
+    -> group by DEPTNO;
++--------+-----------------+
+| DEPTNO | No of Employees |
++--------+-----------------+
+|     10 |               2 |
+|     30 |               3 |
+|     20 |               1 |
++--------+-----------------+
+8. mysql> select DNAME,ENAME from EMP,DEPT
+    -> where DEPT.DEPTNO=EMP.DEPTNO;
++------------+--------+
+| DNAME      | ENAME  |
++------------+--------+
+| ACCOUNTING | KING   |
+| SALES      | BLAKE  |
+| ACCOUNTING | CLARK  |
+| RESEARCH   | JONES  |
+| SALES      | MARTIN |
+| SALES      | ALLEN  |
++------------+--------+
+9. 
+mysql> select ENAME,POSITION('AR' IN ENAME) FROM EMP;
+    -> //
++--------+-------------------------+
+| ENAME  | POSITION('AR' IN ENAME) |
++--------+-------------------------+
+| KING   |                       0 |
+| BLAKE  |                       0 |
+| CLARK  |                       3 |
+| JONES  |                       0 |
+| MARTIN |                       2 |
+| ALLEN  |                       0 |
++--------+-------------------------+
+10.mysql> select SAL*0.2 as "HRA" from EMP;
++---------+
+| HRA     |
++---------+
+| 1000.00 |
+|  570.00 |
+|  490.00 |
+|  595.00 |
+|  250.00 |
+|  320.00 |
++---------+
+
+section II
+1.
+mysql> create table TEMPP(
+    -> string1 varchar(10),
+    -> string2 varchar(10),
+    -> is_present char(15));
+mysql> delimiter //
+mysql> create procedure PROC1(string1 varchar(10),string2 varchar(10))
+    -> begin
+    -> declare s1 varchar(10);
+    -> declare s2 varchar(10);
+    -> select string1 into s1 from dual;
+    -> select string2 into s2 from dual;
+    -> if instr(s1,s2) or instr(s2,s1) then
+    -> insert into TEMPP values (s1,s2,'exist');
+    -> else
+    -> insert into TEMPP values (s1,s2,'not exist');
+    -> end if;
+    -> end; //
+Query OK, 0 rows affected (0.02 sec)
+mysql> delimiter ;
+mysql> call PROC1('DAC','CDAC');
+mysql> select * from TEMPP;
++---------+---------+------------+
+| string1 | string2 | is_present |
++---------+---------+------------+
+| DAC     | CDAC    | exist      |
++---------+---------+------------+
+2.mysql> delimiter //
+mysql> create function FUNC1(a int,b int,c int)
+    -> returns boolean deterministic
+    -> begin
+    -> if (a+b>c) and (b+c>a) and (a+c>b) then
+    -> return true;
+    -> else
+    -> return false;
+    -> end if;
+    -> end; //
+Query OK, 0 rows affected (0.02 sec)
+	delimiter ;
+create table temp(
+ans varchar(15));
+delimiter //
+mysql> create procedure func2(a int,b int,c int)
+    -> begin
+    -> delcare result varchar(15);
+    -> set result=FUNC1(a,b,c);
+    -> insert into temp values (result);
+    -> end; //
